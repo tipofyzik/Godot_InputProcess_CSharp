@@ -9,7 +9,7 @@ public partial class InputHandler : Node {
     public delegate void ActionPressedEventHandler(string key);
     public event ActionPressedEventHandler my_action_just_pressed;
     private readonly Dictionary<string, bool> once_pressed_key_states = new Dictionary<string, bool>() {
-        {"Q", false},
+        {"your_keybind", false},
     };
     private void process_once_pressed_key(string key, bool key_pressed) {
         if (once_pressed_key_states[key] == false && key_pressed == true) {
@@ -24,6 +24,7 @@ public partial class InputHandler : Node {
     // Handle held actions
     public event ActionPressedEventHandler my_action_held;
     private readonly Dictionary<string, bool> held_key_states = new Dictionary<string, bool>() {
+        {"your_keybind", false},
     };
     private void process_held_key(string key, bool key_pressed) {
         if (key_pressed == true) {
@@ -39,7 +40,7 @@ public partial class InputHandler : Node {
     public delegate void SceneActionPressedEventHandler();
     public event SceneActionPressedEventHandler scene_action_pressed;
     private readonly Dictionary<string, bool> scene_key_states = new Dictionary<string, bool>() {
-        {"Escape", false},
+        {"your_keybind", false},
     };
     private void process_scene_pressed_key(string key, bool key_pressed) {
         if (scene_key_states[key] == false && key_pressed == true) {
