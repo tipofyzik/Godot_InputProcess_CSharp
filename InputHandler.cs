@@ -59,6 +59,8 @@ public partial class InputHandler : Node {
         if (once_pressed_key_states.ContainsKey(key)) {
             process_once_pressed_key(key, key_pressed);
         }
+        /* If you have the buttom that contains in both the once_pressed_key_states and held_key_states 
+        dictionaries, you can replace the second else-if-condition by if-condition  */
         else if (held_key_states.ContainsKey(key)) {
             process_held_key(key, key_pressed);
         }
