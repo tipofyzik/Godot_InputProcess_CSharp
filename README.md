@@ -62,11 +62,12 @@ public partial class Node2D : Godot.Node2D {
 '''
 Here, the first filtering of buttons occurs. The _Input function, basically, calls when an input is detected (button/mouse click, mouse motion, gamepad stick moved,etc.). I require only button and mouse cliks, so here I just check whether the input suitable for me. Take into account that here we use the global instance of the InputHandler class.
 
-3. Now we can write the logic for our InputHandler class.
+Now we can write the logic for our InputHandler class.
 We have 2 types of actions: "just_pressed" and "pressed". How it works in godot read [here](https://forum.godotengine.org/t/how-to-differntiate-between-is-action-just-pressed-and-is-action-pressed/8671). I explain my implementations for the "just_pressed" actions because it's a little bit tricky to implement.
 
 **What we need to do?**  
-Open your InputHandler class. The first step is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.
+Open your InputHandler class.  
+**The first step** is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.
 '''
 public partial class InputHandler {
 
@@ -78,4 +79,116 @@ public partial class InputHandler {
     };
 }
 '''
-You can also note a dictionary structure. This type is chosen for its data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey). In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released).  
+You can also note a dictionary structure. This type is chosen for its  data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey) and its convenience. In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released). For example, let's say that you want to process 3 buttons: Q, E, Space, so the dicitonary will be:
+'''
+    private readonly Dictionary<string, bool> once_pressed_key_states = new Dictionary<string, bool>() {
+        {"Q", false},
+        {"E", false},    
+        {"Space", false},
+    };
+'''
+
+**The second step** is to write logic. We need to invoke our event if the corresponding is "just" pressed. We can inplement it via boolean flag: if our key-state in the dictionary is false (the key wasn't pressed before) and we get from the _Input method that our key is_pressed we change the state of the key in the dictionary to "true" and Invoke our event. Once key was released, we change its state back to "false".
+'''
+    private void process_once_pressed_key(string key, bool key_pressed) {
+        if (once_pressed_key_states[key] == false && key_pressed == true) {
+            once_pressed_key_states[key] = true;
+            my_action_just_pressed?.Invoke(key);
+        }
+        else if (once_pressed_key_states[key] == true && key_pressed == false) {
+            once_pressed_key_states[key] = false;
+        }
+    }
+'''
+
+**The third step**: Our fucntion is written, now we need to call it when it requires. For this purpose, we write one more, general, function that will be called on out overridden _Input method (form the point 2). As I mentioned before, on the _Input method the first filtering of buttons occurs. Now, we filter it one more time  but more precisely. Our dictionary contains only the limited amount of key, so we need to chech whether the pressed key is in there. If so, we proceed and call the function written above and, consequeintly, invoke the event. Otherwise, nothing happens.  
+'''
+    public void process_key_state(string key, bool key_pressed) {
+        if (once_pressed_key_states.ContainsKey(key)) {
+            process_once_pressed_key(key, key_pressed);
+        }
+}
+'''
+
+**The forth step**: Now we have everything ti handle our input. The last thing is to work with the classes that are subcsribed to events.  
+In my project for all entities I write an abstract class that contains the basic functionality for my object. Then I inherit from it and add a unique functionality for my object. For example, I want to create a player (the user will control it). First, I write an AbstractPlayer class that contains all general methods and then I write inherited class Player : AbstractPlayer. 
+
+AbstractPlayer class
+'''
+public abstract partial class AbstractPlayer : CharacterBody2D {
+
+    public string current_player_name;
+
+
+    
+    // Here, I handle my animations
+    protected const float speed = 500.0f;
+    private AnimationPlayer animation;
+    private AnimatedSprite2D sprite;
+
+    protected void play_idle(AnimationPlayer _animation) {
+        animation = _animation;
+        animation.Play("Idle");
+    }
+
+    protected void set_sprite(AnimatedSprite2D _sprite) {
+        sprite = _sprite;
+    }
+
+    // Here, I handle my input
+    protected InputHandler input_hadler = Global.data.input_handler;
+    protected readonly Dictionary<string, Action> my_custom_actions = new Dictionary<string, Action>() { };
+
+    protected AbstractPlayer() {
+        my_custom_actions["Q"] = swap_player;
+    }
+
+    protected void my_action_is_pressed(string key) {
+        my_custom_actions[key]();
+    }
+
+    protected void swap_player() {
+        if (current_player_name == "player" && Global.data.mirrored_player_exists) {
+            GlobalPosition = Global.data.mirrored_player_position;
+        }
+        else if (current_player_name != "player" && Global.data.mirrored_player_exists) {
+            GlobalPosition = Global.data.player_position;
+        }
+    }
+
+    public override void _ExitTree() {
+        input_hadler.my_action_just_pressed -= my_action_is_pressed;
+        QueueFree();
+    }
+
+}
+'''
+
+Player class
+'''
+public partial class Player : AbstractPlayer {
+
+	public override void _Ready() {
+		current_player_name = "player";
+
+		play_idle(GetNode<AnimationPlayer>("AnimationPlayer"));
+		set_sprite(GetNode<AnimatedSprite2D>("AnimatedSprite2D"));
+
+		input_hadler.my_action_just_pressed += my_action_is_pressed;
+	}
+
+	private void get_input() {
+		Vector2 input_direction = Input.GetVector("left", "right", "up", "down");
+		flip_x(input_direction.X);
+		flip_y(input_direction.Y);
+		Velocity = input_direction * speed;
+	}
+
+	public override void _Process(double delta) {
+		get_input();
+		Global.data.player_position = GlobalPosition;
+		MoveAndSlide();
+	}
+
+}
+'''
