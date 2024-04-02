@@ -114,7 +114,8 @@ You can also note a dictionary structure. This type is chosen for its  data [ret
 In my project for all entities I write an abstract class that contains the basic functionality for my object. Then I inherit from it and add a unique functionality for my object. For example, I want to create a player (the user will control it). First, I write an AbstractPlayer class that contains all general methods and then I write inherited class Player : AbstractPlayer. 
 
 AbstractPlayer class  
-'''
+
+'''  
 public abstract partial class AbstractPlayer : CharacterBody2D {
 
     public string current_player_name;
@@ -165,6 +166,7 @@ public abstract partial class AbstractPlayer : CharacterBody2D {
 '''
 
 Player class  
+
 '''  
 public partial class Player : AbstractPlayer {
 
