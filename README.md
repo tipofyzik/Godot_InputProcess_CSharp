@@ -201,7 +201,7 @@ The last event I wrote for the global buttons. Let's say, the key "Escape" is re
 
 ## Results an further development
 My input handler implementation has a big advantage comparing with the classic input handling in Godot:  
-It check only a limited amount of if-statement. In the worst case, we have 6 if-statements (1 in the frist filter, 3 in the second filter and 2 in the calling event). On average we have 4 checks. And in the best case, we have the only one check. If we handle this as usual, i.e., using if/else-if statements for each action in _Process funstion for each object, it will cost computing resources. Thus is because the Godot will check this statements each engine tick for each object. In my implementation, the Godot check only the _Input function and then calls the events if required.
+It check only a limited amount of if-statement. In the worst case, we have 6 if-statements (1 in the first filter, 3 in the second filter and 2 in the calling event). On average (if the input key is in our dictionary) we have from 3 to 5 checks. If we handle this as usual, i.e., using if/else-if statements for each action in _Process funstion for each object, it will cost computing resources. Thus is because the Godot will check this statements each engine tick for each object. In my implementation, the Godot check only the _Input function and then calls the events if required.
 
 It has the only one (I hope so) drawback:  
 You need to set up all the input manually in your classes and keep in mind which actions you want for which objects. Also, you have to remember to subscribe and unsubscribe from the event. However, once you get used to it, it will become pretty easy to you
