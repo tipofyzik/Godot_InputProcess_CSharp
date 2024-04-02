@@ -35,7 +35,7 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 
 **How it works**:  
-1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)
+First you need to do is to create InputHandler class (how to write logic we'll discuss later)
 
 '''cs
 public partial class InputHandler {
