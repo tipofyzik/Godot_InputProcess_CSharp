@@ -5,7 +5,7 @@ The [Godot](https://godotengine.org/) is an open-source, free game engine. It's 
 Recently, I started doing my project, however, I forced with the fact that Godot can't handle input via signals. The developer, usually, handles input from the keyboard and mouse via if-statements in a _Process function that checks statements every engine tick (typically it is 60 physics ticks per second). 
 
 **But what's the problem?** Imagine that you have your player and let's say it has 4 special buttons: space - jump, shift - dash, mouse leftclick - fire, E-button - interact with object. Right now, you are adding this action to the input map and checking them to see if anything was pressed (code example below)  
-```ruby
+<pre><code class='language-cs'>
 public override void _Process(double delta) {
 	get_input();  //This function gets basic control (left, right, up, down) and sets the player velocity
 	if (Input.IsActionJustPressed("jump")) {
@@ -22,8 +22,8 @@ public override void _Process(double delta) {
 	}
 	MoveAndSlide();  //This function is responsible for character moving (see Godot documentation)
 }
+</code></pre>
 
-```
 So, every tick the engine check 4 conditions in the worst case. Now, imagine that you have 3 entities and they also have for 2 conditions each. So, every tick Godot checks 4+3*2=10 conditions in the worst case. In short, the larger your game, the more conditions the game engine checks. I want to optimize this process by implementing the InputHandler class that would take an input and then send the corresponding signal to the game entities (for example, player). It will reduce engine load since this special class will have no more than a small constant number of if-statements
 
 ## Implementation
@@ -36,7 +36,6 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 **How it works**:  
 1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)
-
 <pre><code class='language-cs'>
 public partial class InputHandler {
 }  
