@@ -3,7 +3,7 @@ using Godot;
 
 
 
-public partial class InputHandler : Node {
+public partial class InputHandler {
 
     // Handle once pressed actions
     public delegate void ActionPressedEventHandler(string key);
