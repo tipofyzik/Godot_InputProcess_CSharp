@@ -78,4 +78,4 @@ public partial class InputHandler {
     };
 }
 '''
-You can also note a dictionary structure. This type is chosen for its data retrieval speed (https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey). In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released).  
+You can also note a dictionary structure. This type is chosen for its data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey). In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released).  
