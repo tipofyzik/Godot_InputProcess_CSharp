@@ -37,14 +37,14 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 **How it works**:  
 1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)
 
-'''csharp
+'''cs
 public partial class InputHandler {
 }  
 
 '''  
 Then write a global class that contains the InputHandler instance and the constructor of this global class. It essential to use the only ine InputHandler object since we want to precess input only once  
 
-'''csharp
+'''cs
 public partial class Global : Node {
 
 	public static Global data { get; set; } = new Global() { };
