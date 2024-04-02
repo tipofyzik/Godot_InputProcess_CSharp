@@ -14,7 +14,7 @@ Recently, I started doing my project, however, I forced with the fact that Godot
 		else if (Input.IsActionJustPressed("dash")) {
 			dash();
 		}
-		else if (Input.IsActionJustPressed("fire")) {
+		else if (Input.IsActionPressed("fire")) {
 			fire();
 		}
 		else if (Input.IsActionJustPressed("interact_with_object")) {
@@ -24,7 +24,7 @@ Recently, I started doing my project, however, I forced with the fact that Godot
 }
 
 ```
-So, every tick the engine check 4 conditions in the worst case. Now, imagine that you have 3 entities and they also have for 2 conditions each. So, every tick Godot checks 4+3*2=10 conditions in the worst case. In short, the larger your game, the more conditions the game engine checks. I want to optimize this process by implementing the InputHandler class that would take an input and then send the corresponding signal to the game entities (for example, player).
+So, every tick the engine check 4 conditions in the worst case. Now, imagine that you have 3 entities and they also have for 2 conditions each. So, every tick Godot checks 4+3*2=10 conditions in the worst case. In short, the larger your game, the more conditions the game engine checks. I want to optimize this process by implementing the InputHandler class that would take an input and then send the corresponding signal to the game entities (for example, player). It will reduce engine load since this special class will have no more than a small constant number of if-statements
 
 ## Implementation
 **Code is written in C#, you can transfer it in gd-script (Godot built-in language).**
@@ -35,8 +35,22 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 
 **How it works**:  
-First you need to do is to create InputHandler class 
-First you need to do is to override an _Inpit method in the built-in Node2D class (represents a 2D object).
+1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)
+'''
+public partial class InputHandler {
+}
+
+'''
+Then write a global class that contains the InputHandler instance and the constructor of this global class. It essential to use the only ine InputHandler object since we want to precess input only once
+'''
+public partial class Global : Node {
+
+	public static Global data { get; set; } = new Global() { };
+	public InputHandler input_handler = new InputHandler() { };
+ }
+'''
+
+2. Then it's necessary to override an _Inpit method in the built-in Node2D class (represents a 2D object).
 '''
 public partial class Node2D : Godot.Node2D {
     public override void _Input(InputEvent @event) {
@@ -46,4 +60,22 @@ public partial class Node2D : Godot.Node2D {
     }
 }
 '''
-Here, the first filtering of buttons occurs. The _Input function, basically, calls when an input is detected (button/mouse click, mouse motion, gamepad stick moved,etc.). I require only button and mouse cliks, so here I just check whether the input suitable for me.    
+Here, the first filtering of buttons occurs. The _Input function, basically, calls when an input is detected (button/mouse click, mouse motion, gamepad stick moved,etc.). I require only button and mouse cliks, so here I just check whether the input suitable for me. Take into account that here we use the global instance of the InputHandler class.
+
+3. Now we can write the logic for our InputHandler class.
+We have 2 types of actions: "just_pressed" and "pressed". How it works in godot read [here](https://forum.godotengine.org/t/how-to-differntiate-between-is-action-just-pressed-and-is-action-pressed/8671). I explain my implementations for the "just_pressed" actions because it's a little bit tricky to implement.
+
+**What we need to do?**  
+Open your InputHandler class. The first step is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.
+'''
+public partial class InputHandler {
+
+    // Handle once pressed actions
+    public delegate void ActionPressedEventHandler(string key);
+    public event ActionPressedEventHandler my_action_just_pressed;
+    private readonly Dictionary<string, bool> once_pressed_key_states = new Dictionary<string, bool>() {
+        {"your_keybind", false},
+    };
+}
+'''
+You can also note a dictionary structure. This type is chosen for its data retrieval speed (https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey). In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released).  
