@@ -27,7 +27,8 @@ public override void _Process(double delta) {
 So, every tick the engine check 4 conditions in the worst case. Now, imagine that you have 3 entities and they also have for 2 conditions each. So, every tick Godot checks 4+3*2=10 conditions in the worst case. In short, the larger your game, the more conditions the game engine checks. I want to optimize this process by implementing the InputHandler class that would take an input and then send the corresponding signal to the game entities (for example, player). It will reduce engine load since this special class will have no more than a small constant number of if-statements
 
 ## Implementation
-**Code is written in C#, you can transfer it in gd-script (Godot built-in language). The solution works for Godot version: 4.2.1**
+**Code is written in C#, you can transfer it in gd-script (Godot built-in language). The solution works for Godot version: 4.2.1**  
+**Moreover, I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the mentioned reason.
 
 **The idea**: The best thing is to read all input that the engine gets from the user and then filter it according to the keybinds, i.e., process only keys that has are connetcted to their own actions.  
 **The result**: In the inplementation, I don't use input map. The main drawback here is that you need to set all your actions manually (I'll explain how to do so a little bit later). 
@@ -206,7 +207,6 @@ It check only a limited amount of if-statement. In the worst case, we have 6 if-
 It has the only one (I hope so) drawback:  
 You need to set up all the input manually in your classes and keep in mind which actions you want for which objects. Also, you have to remember to subscribe and unsubscribe from the event. However, once you get used to it, it will become pretty easy to you
 
-**I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the mentioned reason.
 
 **Further development**:
 I'd glad to hear your feedback. Maybe, there is something that I didn't take into account. It works awesome for 2D games (according to my tests). You can share your experience in the comments under the post on [reddit](https://www.reddit.com/r/godot/comments/1btv1pm/implementation_of_the_processing_input_via_c/) 
