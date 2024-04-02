@@ -123,18 +123,7 @@ public abstract partial class AbstractPlayer : CharacterBody2D {
 
     
     // Here, I handle my animations
-    protected const float speed = 500.0f;
-    private AnimationPlayer animation;
-    private AnimatedSprite2D sprite;
-
-    protected void play_idle(AnimationPlayer _animation) {
-        animation = _animation;
-        animation.Play("Idle");
-    }
-
-    protected void set_sprite(AnimatedSprite2D _sprite) {
-        sprite = _sprite;
-    }
+    //Some code
 
     // Here, I handle my input
     protected InputHandler input_hadler = Global.data.input_handler;
@@ -178,19 +167,26 @@ public partial class Player : AbstractPlayer {
 
 		input_hadler.my_action_just_pressed += my_action_is_pressed;
 	}
-
-	private void get_input() {
-		Vector2 input_direction = Input.GetVector("left", "right", "up", "down");
-		flip_x(input_direction.X);
-		flip_y(input_direction.Y);
-		Velocity = input_direction * speed;
-	}
-
-	public override void _Process(double delta) {
-		get_input();
-		Global.data.player_position = GlobalPosition;
-		MoveAndSlide();
-	}
+	// Other code
 
 }
 '''
+
+Let's take a look at "// Here, I handle my input" section in the AbstractPlayer class.  
+For our player to do the necessary actions we, first, define an InputHandler object (that is our global instance) and also define a dictionary where we store that actions we want player to do. Then we write a cinstructor of the class that contains the relationship between the button and the function we want to call. In my case this is Q-button with the function "swap_payer" that exactly swap two players (I have the original and the reflected one).  
+Then we write a protected function my_action_is_pressed() (name it whatever you want) that we will call each time our event has been invoked. In this function, the necessary actions will be called. And finally we write the action functions itself (swap_player in my case). 
+
+In the Godot each object has function [_Ready](https://docs.godotengine.org/en/stable/classes/class_node.html#class-node-private-method-ready:~:text=void%20_ready%20(%20)%20virtual) that calls once the object is intered the scene tree. Here we **must** subcsribe on the event. We can make it by writing 
+'''
+input_hadler.my_action_just_pressed += my_action_is_pressed;
+'''
+where input_handler is the global InputHandler instance that we defined before and my_action_just_pressed is the event. When we write "+= my_action_is_pressed" we say that this function will be called once the event my_action_just_pressed is invoked. And in this function we call the required action by accesing it through our custom action dictionary (I defined it in the AbstractPlayer class).
+
+That's it. Now, every time the button you need is pressed, it will emit the corresponding signal, which will then trigger the necessary functions. Once again, I have depicted schematically in the picture below how it works
+
+![Scheme](https://github.com/tipofyzik/Godot_InputProcess_CSharp/assets/84290230/5f5067b0-f3fa-48dd-9f83-0ec4fa2027c9)
+
+
+## Advanced input handling
+In the InputHandler file you might have noticed that I have 2 delegates and 3 events
+
