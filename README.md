@@ -28,7 +28,7 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 ## Implementation
 **Code is written in C#, you can transfer it in gd-script (Godot built-in language). The solution works for Godot version: 4.2.1**  
-**Moreover, I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the explained reason (above and below).
+**Moreover, I'm not saying that my implementation is definitely more effective than the original one.** It should be tested.  However, I think so because my implementation uses less if-statements than examples in the internet. Usually, people write their implementation within the _process function (that runs every frame) or within the input that runs when the InputEvent is occured. It means that once one of this functions is called, in the worst case, all the if-statements were checked. If we have a lot of functions here, we have a lot of statement-ckecks. I just figured out (I believe) how to reduce the amount of checks (exactly for input).
 
 **The idea**: The best thing is to read all input that the engine gets from the user and then filter it according to the keybinds, i.e., process only keys that has are connetcted to their own actions.  
 **The result**: In the inplementation, I don't use input map. The main drawback here is that you need to set all your actions manually (I'll explain how to do so a little bit later). 
