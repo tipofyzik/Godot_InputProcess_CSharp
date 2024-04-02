@@ -165,7 +165,7 @@ public abstract partial class AbstractPlayer : CharacterBody2D {
 '''
 
 Player class  
-'''
+'''  
 public partial class Player : AbstractPlayer {
 
 	public override void _Ready() {
