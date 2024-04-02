@@ -208,4 +208,4 @@ You need to set up all the input manually in your classes and keep in mind which
 
 
 **Further development**:
-I'd glad to hear your feedback. Maybe, there is something that I didn't take into account. It works awesome for 2D games (according to my tests). You can share your experience in the comments under the post on reddit 
+I'd glad to hear your feedback. Maybe, there is something that I didn't take into account. It works awesome for 2D games (according to my tests). You can share your experience in the comments under the post on [reddit](https://www.reddit.com/r/godot/comments/1btv1pm/implementation_of_the_processing_input_via_c/) 
