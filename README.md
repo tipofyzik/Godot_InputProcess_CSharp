@@ -4,7 +4,7 @@ The [Godot](https://godotengine.org/) is an open-source, free game engine. It's 
 ## Introduction to the problem
 Recently, I started doing my project, however, I forced with the fact that Godot can't handle input via signals. The developer, usually, handles input from the keyboard and mouse via if-statements in a _Process function that checks statements every engine tick (typically it is 60 physics ticks per second). 
 
-**But what's the problem?** Imagine that you have your player and let's say it has 4 special buttons: space - jump, shift - dash, mouse leftclick - fire, E-button - interact with object. Right now, you are adding this action to the input map and checking them to see if anything was pressed (code example below)
+**But what's the problem?** Imagine that you have your player and let's say it has 4 special buttons: space - jump, shift - dash, mouse leftclick - fire, E-button - interact with object. Right now, you are adding this action to the input map and checking them to see if anything was pressed (code example below)  
 ```
 	public override void _Process(double delta) {
 		get_input();  //This function gets basic control (left, right, up, down) and sets the player velocity
@@ -35,13 +35,13 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 
 **How it works**:  
-1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)
+1. First you need to do is to create InputHandler class (how to write logic we'll discuss later)  
 '''
 public partial class InputHandler {
 }
 
 '''
-Then write a global class that contains the InputHandler instance and the constructor of this global class. It essential to use the only ine InputHandler object since we want to precess input only once
+Then write a global class that contains the InputHandler instance and the constructor of this global class. It essential to use the only ine InputHandler object since we want to precess input only once  
 '''
 public partial class Global : Node {
 
@@ -50,7 +50,7 @@ public partial class Global : Node {
  }
 '''
 
-2. Then it's necessary to override an _Inpit method in the built-in Node2D class (represents a 2D object).
+2. Then it's necessary to override an _Inpit method in the built-in Node2D class (represents a 2D object).  
 '''
 public partial class Node2D : Godot.Node2D {
     public override void _Input(InputEvent @event) {
@@ -67,7 +67,7 @@ We have 2 types of actions: "just_pressed" and "pressed". How it works in godot 
 
 **What we need to do?**  
 Open your InputHandler class.  
-**The first step** is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.
+**The first step** is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.  
 '''
 public partial class InputHandler {
 
@@ -79,7 +79,7 @@ public partial class InputHandler {
     };
 }
 '''
-You can also note a dictionary structure. This type is chosen for its  data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey) and its convenience. In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released). For example, let's say that you want to process 3 buttons: Q, E, Space, so the dicitonary will be:
+You can also note a dictionary structure. This type is chosen for its  data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey) and its convenience. In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released). For example, let's say that you want to process 3 buttons: Q, E, Space, so the dicitonary will be:  
 '''
     private readonly Dictionary<string, bool> once_pressed_key_states = new Dictionary<string, bool>() {
         {"Q", false},
@@ -88,7 +88,7 @@ You can also note a dictionary structure. This type is chosen for its  data [ret
     };
 '''
 
-**The second step** is to write logic. We need to invoke our event if the corresponding is "just" pressed. We can inplement it via boolean flag: if our key-state in the dictionary is false (the key wasn't pressed before) and we get from the _Input method that our key is_pressed we change the state of the key in the dictionary to "true" and Invoke our event. Once key was released, we change its state back to "false".
+**The second step** is to write logic. We need to invoke our event if the corresponding is "just" pressed. We can inplement it via boolean flag: if our key-state in the dictionary is false (the key wasn't pressed before) and we get from the _Input method that our key is_pressed we change the state of the key in the dictionary to "true" and Invoke our event. Once key was released, we change its state back to "false".  
 '''
     private void process_once_pressed_key(string key, bool key_pressed) {
         if (once_pressed_key_states[key] == false && key_pressed == true) {
@@ -113,7 +113,7 @@ You can also note a dictionary structure. This type is chosen for its  data [ret
 **The forth step**: Now we have everything ti handle our input. The last thing is to work with the classes that are subcsribed to events.  
 In my project for all entities I write an abstract class that contains the basic functionality for my object. Then I inherit from it and add a unique functionality for my object. For example, I want to create a player (the user will control it). First, I write an AbstractPlayer class that contains all general methods and then I write inherited class Player : AbstractPlayer. 
 
-AbstractPlayer class
+AbstractPlayer class  
 '''
 public abstract partial class AbstractPlayer : CharacterBody2D {
 
@@ -164,7 +164,7 @@ public abstract partial class AbstractPlayer : CharacterBody2D {
 }
 '''
 
-Player class
+Player class  
 '''
 public partial class Player : AbstractPlayer {
 
