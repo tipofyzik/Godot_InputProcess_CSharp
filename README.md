@@ -6,21 +6,21 @@ Recently, I started doing my project, however, I forced with the fact that Godot
 
 **But what's the problem?** Imagine that you have your player and let's say it has 4 special buttons: space - jump, shift - dash, mouse leftclick - fire, E-button - interact with object. Right now, you are adding this action to the input map and checking them to see if anything was pressed (code example below)  
 ```
-	public override void _Process(double delta) {
-		get_input();  //This function gets basic control (left, right, up, down) and sets the player velocity
-		if (Input.IsActionJustPressed("jump")) {
-			jump();
-		}
-		else if (Input.IsActionJustPressed("dash")) {
-			dash();
-		}
-		else if (Input.IsActionPressed("fire")) {
-			fire();
-		}
-		else if (Input.IsActionJustPressed("interact_with_object")) {
-			interact_with_object();
-		}
-		MoveAndSlide();  //This function is responsible for character moving (see Godot documentation)
+public override void _Process(double delta) {
+	get_input();  //This function gets basic control (left, right, up, down) and sets the player velocity
+	if (Input.IsActionJustPressed("jump")) {
+		jump();
+	}
+	else if (Input.IsActionJustPressed("dash")) {
+		dash();
+	}
+	else if (Input.IsActionPressed("fire")) {
+		fire();
+	}
+	else if (Input.IsActionJustPressed("interact_with_object")) {
+		interact_with_object();
+	}
+	MoveAndSlide();  //This function is responsible for character moving (see Godot documentation)
 }
 
 ```
@@ -47,7 +47,7 @@ public partial class Global : Node {
 
 	public static Global data { get; set; } = new Global() { };
 	public InputHandler input_handler = new InputHandler() { };
- }
+}
 '''
 
 2. Then it's necessary to override an _Inpit method in the built-in Node2D class (represents a 2D object).  
@@ -90,30 +90,30 @@ You can also note a dictionary structure. This type is chosen for its  data [ret
 
 **The second step** is to write logic. We need to invoke our event if the corresponding is "just" pressed. We can inplement it via boolean flag: if our key-state in the dictionary is false (the key wasn't pressed before) and we get from the _Input method that our key is_pressed we change the state of the key in the dictionary to "true" and Invoke our event. Once key was released, we change its state back to "false".  
 '''
-    private void process_once_pressed_key(string key, bool key_pressed) {
-        if (once_pressed_key_states[key] == false && key_pressed == true) {
-            once_pressed_key_states[key] = true;
-            my_action_just_pressed?.Invoke(key);
-        }
-        else if (once_pressed_key_states[key] == true && key_pressed == false) {
-            once_pressed_key_states[key] = false;
-        }
-    }
+private void process_once_pressed_key(string key, bool key_pressed) {
+	if (once_pressed_key_states[key] == false && key_pressed == true) {
+	    once_pressed_key_states[key] = true;
+	    my_action_just_pressed?.Invoke(key);
+	}
+	else if (once_pressed_key_states[key] == true && key_pressed == false) {
+	    once_pressed_key_states[key] = false;
+	}
+}
 '''
 
 **The third step**: Our fucntion is written, now we need to call it when it requires. For this purpose, we write one more, general, function that will be called on out overridden _Input method (form the point 2). As I mentioned before, on the _Input method the first filtering of buttons occurs. Now, we filter it one more time  but more precisely. Our dictionary contains only the limited amount of key, so we need to chech whether the pressed key is in there. If so, we proceed and call the function written above and, consequeintly, invoke the event. Otherwise, nothing happens.  
 '''
-    public void process_key_state(string key, bool key_pressed) {
-        if (once_pressed_key_states.ContainsKey(key)) {
-            process_once_pressed_key(key, key_pressed);
-        }
+public void process_key_state(string key, bool key_pressed) {
+	if (once_pressed_key_states.ContainsKey(key)) {
+	    process_once_pressed_key(key, key_pressed);
+	}
 }
 '''
 
 **The forth step**: Now we have everything ti handle our input. The last thing is to work with the classes that are subcsribed to events.  
 In my project for all entities I write an abstract class that contains the basic functionality for my object. Then I inherit from it and add a unique functionality for my object. For example, I want to create a player (the user will control it). First, I write an AbstractPlayer class that contains all general methods and then I write inherited class Player : AbstractPlayer. 
 
-AbstractPlayer class  
+AbstractPlayer class
 
 '''  
 public abstract partial class AbstractPlayer : CharacterBody2D {
