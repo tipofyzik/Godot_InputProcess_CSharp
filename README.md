@@ -28,7 +28,7 @@ So, every tick the engine check 4 conditions in the worst case. Now, imagine tha
 
 ## Implementation
 **Code is written in C#, you can transfer it in gd-script (Godot built-in language). The solution works for Godot version: 4.2.1**  
-**Moreover, I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the mentioned reason.
+**Moreover, I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the explained reason (above and below).
 
 **The idea**: The best thing is to read all input that the engine gets from the user and then filter it according to the keybinds, i.e., process only keys that has are connetcted to their own actions.  
 **The result**: In the inplementation, I don't use input map. The main drawback here is that you need to set all your actions manually (I'll explain how to do so a little bit later). 
