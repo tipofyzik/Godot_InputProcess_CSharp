@@ -42,16 +42,16 @@ public partial class InputHandler {
 </code></pre>
 Then write a global class that contains the InputHandler instance and the constructor of this global class. It essential to use the only ine InputHandler object since we want to precess input only once  
 
-'''cs
+<pre><code class='language-cs'>
 public partial class Global : Node {
 
 	public static Global data { get; set; } = new Global() { };
 	public InputHandler input_handler = new InputHandler() { };
 }  
-'''
+</code></pre>
 
 2. Then it's necessary to override an _Inpit method in the built-in Node2D class (represents a 2D object).  
-'''
+<pre><code class='language-cs'>
 public partial class Node2D : Godot.Node2D {
     public override void _Input(InputEvent @event) {
         if (@event is InputEventKey || @event is InputEventMouseButton) {
@@ -59,7 +59,7 @@ public partial class Node2D : Godot.Node2D {
         }
     }
 }
-'''
+</code></pre>
 Here, the first filtering of buttons occurs. The _Input function, basically, calls when an input is detected (button/mouse click, mouse motion, gamepad stick moved,etc.). I require only button and mouse cliks, so here I just check whether the input suitable for me. Take into account that here we use the global instance of the InputHandler class.
 
 Now we can write the logic for our InputHandler class.
@@ -68,7 +68,7 @@ We have 2 types of actions: "just_pressed" and "pressed". How it works in godot 
 **What we need to do?**  
 Open your InputHandler class.  
 **The first step** is to write a [delegate](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/) for this class. In our case this delegate should take only one argument - the string key that corresponds to the pressed button. Then we need to write an event for our delegate, to which other classes will subscribe. Once this event is triggered, the subscribed classes will perform the necessary actions.  
-'''
+<pre><code class='language-cs'>
 public partial class InputHandler {
 
     // Handle once pressed actions
@@ -78,18 +78,18 @@ public partial class InputHandler {
         {"your_keybind", false},
     };
 }
-'''
+</code></pre>
 You can also note a dictionary structure. This type is chosen for its  data [retrieval speed](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-8.0&redirectedfrom=MSDN#remarks:~:text=is%20not%20found.%0A*/-,Remarks,-The%20Dictionary%3CTKey) and its convenience. In this dictionary, we write keys that we want to process and their state ("true" represents pressed button and "false" represent that button is released). For example, let's say that you want to process 3 buttons: Q, E, Space, so the dicitonary will be:  
-'''
+<pre><code class='language-cs'>
     private readonly Dictionary<string, bool> once_pressed_key_states = new Dictionary<string, bool>() {
         {"Q", false},
         {"E", false},    
         {"Space", false},
     };
-'''
+</code></pre>
 
 **The second step** is to write logic. We need to invoke our event if the corresponding is "just" pressed. We can inplement it via boolean flag: if our key-state in the dictionary is false (the key wasn't pressed before) and we get from the _Input method that our key is_pressed we change the state of the key in the dictionary to "true" and Invoke our event. Once key was released, we change its state back to "false".  
-'''
+<pre><code class='language-cs'>
 private void process_once_pressed_key(string key, bool key_pressed) {
 	if (once_pressed_key_states[key] == false && key_pressed == true) {
 	    once_pressed_key_states[key] = true;
@@ -99,23 +99,23 @@ private void process_once_pressed_key(string key, bool key_pressed) {
 	    once_pressed_key_states[key] = false;
 	}
 }
-'''
+</code></pre>
 
 **The third step**: Our fucntion is written, now we need to call it when it requires. For this purpose, we write one more, general, function that will be called on out overridden _Input method (form the point 2). As I mentioned before, on the _Input method the first filtering of buttons occurs. Now, we filter it one more time  but more precisely. Our dictionary contains only the limited amount of key, so we need to chech whether the pressed key is in there. If so, we proceed and call the function written above and, consequeintly, invoke the event. Otherwise, nothing happens.  
-'''
+<pre><code class='language-cs'>
 public void process_key_state(string key, bool key_pressed) {
 	if (once_pressed_key_states.ContainsKey(key)) {
 	    process_once_pressed_key(key, key_pressed);
 	}
 }
-'''
+</code></pre>
 
 **The forth step**: Now we have everything ti handle our input. The last thing is to work with the classes that are subcsribed to events.  
 In my project for all entities I write an abstract class that contains the basic functionality for my object. Then I inherit from it and add a unique functionality for my object. For example, I want to create a player (the user will control it). First, I write an AbstractPlayer class that contains all general methods and then I write inherited class Player : AbstractPlayer. 
 
 AbstractPlayer class
 
-'''  
+<pre><code class='language-cs'>
 public abstract partial class AbstractPlayer : CharacterBody2D {
 
     public string current_player_name;
@@ -152,11 +152,11 @@ public abstract partial class AbstractPlayer : CharacterBody2D {
     }
 
 }
-'''
+</code></pre>
 
 Player class  
 
-'''  
+<pre><code class='language-cs'>
 public partial class Player : AbstractPlayer {
 
 	public override void _Ready() {
@@ -170,16 +170,16 @@ public partial class Player : AbstractPlayer {
 	// Other code
 
 }
-'''
+</code></pre>
 
 Let's take a look at "// Here, I handle my input" section in the AbstractPlayer class.  
 For our player to do the necessary actions we, first, define an InputHandler object (that is our global instance) and also define a dictionary where we store that actions we want player to do. Then we write a cinstructor of the class that contains the relationship between the button and the function we want to call. In my case this is Q-button with the function "swap_payer" that exactly swap two players (I have the original and the reflected one).  
 Then we write a protected function my_action_is_pressed() (name it whatever you want) that we will call each time our event has been invoked. In this function, the necessary actions will be called. And finally we write the action functions itself (swap_player in my case). 
 
 In the Godot each object has function [_Ready](https://docs.godotengine.org/en/stable/classes/class_node.html#class-node-private-method-ready:~:text=void%20_ready%20(%20)%20virtual) that calls once the object is intered the scene tree. Here we **must** subcsribe on the event. We can make it by writing 
-'''
+<pre><code class='language-cs'>
 input_hadler.my_action_just_pressed += my_action_is_pressed;
-'''
+</code></pre>
 where input_handler is the global InputHandler instance that we defined before and my_action_just_pressed is the event. When we write "+= my_action_is_pressed" we say that this function will be called once the event my_action_just_pressed is invoked. And in this function we call the required action by accesing it through our custom action dictionary (I defined it in the AbstractPlayer class).
 
 That's it. Now, every time the button you need is pressed, it will emit the corresponding signal, which will then trigger the necessary functions. Once again, I have depicted schematically in the picture below how it works
