@@ -27,7 +27,7 @@ public override void _Process(double delta) {
 So, every tick the engine check 4 conditions in the worst case. Now, imagine that you have 3 entities and they also have for 2 conditions each. So, every tick Godot checks 4+3*2=10 conditions in the worst case. In short, the larger your game, the more conditions the game engine checks. I want to optimize this process by implementing the InputHandler class that would take an input and then send the corresponding signal to the game entities (for example, player). It will reduce engine load since this special class will have no more than a small constant number of if-statements
 
 ## Implementation
-**Code is written in C#, you can transfer it in gd-script (Godot built-in language).**
+**Code is written in C#, you can transfer it in gd-script (Godot built-in language). The solution works for Godot version: 4.2.1**
 
 **The idea**: The best thing is to read all input that the engine gets from the user and then filter it according to the keybinds, i.e., process only keys that has are connetcted to their own actions.  
 **The result**: In the inplementation, I don't use input map. The main drawback here is that you need to set all your actions manually (I'll explain how to do so a little bit later). 
@@ -182,11 +182,30 @@ input_hadler.my_action_just_pressed += my_action_is_pressed;
 </code></pre>
 where input_handler is the global InputHandler instance that we defined before and my_action_just_pressed is the event. When we write "+= my_action_is_pressed" we say that this function will be called once the event my_action_just_pressed is invoked. And in this function we call the required action by accesing it through our custom action dictionary (I defined it in the AbstractPlayer class).
 
+**Note**: dont forget to unsubscribe from the actions if your object is exited from the scene tree (deleted). If you don't do so, the code will try to perform a fucntion for a  disposed object that will call the corresponding exception.
+
+
 That's it. Now, every time the button you need is pressed, it will emit the corresponding signal, which will then trigger the necessary functions. Once again, I have depicted schematically in the picture below how it works
 
 ![Scheme](https://github.com/tipofyzik/Godot_InputProcess_CSharp/assets/84290230/5f5067b0-f3fa-48dd-9f83-0ec4fa2027c9)
 
 
 ## Advanced input handling
-In the InputHandler file you might have noticed that I have 2 delegates and 3 events
+In the InputHandler file you might have noticed that I have 2 delegates and 3 events (and 3 corresponding dictionaries). This is because I handle not only "just_pressed" keys. Namely, I handle 3 types of actions: "just_pressed", "pressed" or held event and "scene" action. We considered the first one. The second event works almost in the same way but it will be called all the time when the button is held. Once you released it, the action will stop. Such event can be useful to perform such actions as assault rifle fire.  
+The last event I wrote for the global buttons. Let's say, the key "Escape" is responsible for opening the pause menu. This event will come in handy here. 
 
+**In case you decide to write your own events, don't forget about 2 thigs**:
+1. Each event should be responsible for its own purpose. Don't use only one event instance to handle input, it will cause a lot of problems. Imagine that you try to handle "just_pressed" and "held" actions using only on event instance. And let's say you have 1 button in each corresponding dictionary. For example, a leftclick mouse button that corresponds to "fire" aciton. For the assault rifle you need to hold this button but for the pistol you're required to press it only once for a single shot. So, the class that corresponds for your pistol should be subcribed to "my_action_just_pressed" event and the assault riffle class shoud be subscribed to "my_action_held" event (see event in the InputHandler.cs file).
+2. Always unsubscribe from the events once your objects is deleted, dropped, etc. (depends on your game logic).
+
+
+## Results an further development
+My input handler implementation has a big advantage comparing with the classic input handling in Godot:  
+It check only a limited amount of if-statement. In the worst case, we have 6 if-statements (1 in the frist filter, 3 in the second filter and 2 in the calling event). On average we have 4 checks. And in the best case, we have the only one check. If we handle this as usual, i.e., using if/else-if statements for each action in _Process funstion for each object, it will cost computing resources. Thus is because the Godot will check this statements each engine tick for each object. In my implementation, the Godot check only the _Input function and then calls the events if required.
+
+It has the only one (I hope so) drawback:  
+You need to set up all the input manually in your classes and keep in mind which actions you want for which objects. Also, you have to remember to subscribe and unsubscribe from the event. However, once you get used to it, it will become pretty easy to you
+
+
+**Further development**:
+I'd glad to hear your feedback. Maybe, there is something that I didn't take into account. It works awesome for 2D games (according to my tests). You can share your experience in the comments under the post on reddit 
