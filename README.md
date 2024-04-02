@@ -206,6 +206,9 @@ It check only a limited amount of if-statement. In the worst case, we have 6 if-
 It has the only one (I hope so) drawback:  
 You need to set up all the input manually in your classes and keep in mind which actions you want for which objects. Also, you have to remember to subscribe and unsubscribe from the event. However, once you get used to it, it will become pretty easy to you
 
+**I'm not saying that my implementation is definitely more effective than the original one.** It should be tested. However, it seems to me to be faster due to the mentioned reason.
 
 **Further development**:
 I'd glad to hear your feedback. Maybe, there is something that I didn't take into account. It works awesome for 2D games (according to my tests). You can share your experience in the comments under the post on [reddit](https://www.reddit.com/r/godot/comments/1btv1pm/implementation_of_the_processing_input_via_c/) 
+
+
